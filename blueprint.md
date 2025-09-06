@@ -1,74 +1,43 @@
-
 # Animal Health App Blueprint
 
-## 1. Tổng quan
+## Overview
 
-Ứng dụng này là một công cụ quản lý phòng khám thú y, giúp nhân viên phòng khám theo dõi và quản lý thông tin khách hàng, thú cưng, lịch hẹn và các quy trình khám bệnh. Ứng dụng được xây dựng bằng Flutter, hướng tới một giao diện người dùng sạch sẽ, hiện đại và dễ sử dụng trên cả nền tảng di động và web.
+This document outlines the architecture, features, and design of the Animal Health App, a Flutter application for managing customer and pet information. The app is built with a focus on clean architecture, modern UI/UX, and robust data management using Firebase.
 
-## 2. Kiến trúc và Công nghệ
+## Implemented Features
 
-- **Kiến trúc nền tảng**: Clean Architecture, phân tách rõ ràng 3 lớp: Presentation, Domain, và Data.
-- **State Management**: `flutter_bloc` và `bloc` là giải pháp chính cho việc quản lý trạng thái của các tính năng. `provider` được sử dụng để cung cấp BLoCs và các services khác xuống cây widget.
-- **Dependency Injection**: `get_it` và `injectable` được sử dụng để tự động hóa việc đăng ký và cung cấp các lớp phụ thuộc.
-- **Điều hướng (Routing)**: `go_router` cho việc quản lý điều hướng khai báo, hỗ trợ deep linking.
-- **Giao tiếp mạng**: `dio` là HTTP client chính.
-- **Dữ liệu hiện tại**: Dữ liệu đang được giả lập (mocked) trong lớp `AnimalHealthApi`.
+*   **Initial Setup:** Basic Flutter project structure.
+*   **Data Modeling:** Initial data models for `Customer` and `Pet`.
+*   **Fake Data:** Used a fake API (`AnimalHealthApi`) for initial data display.
+*   **UI Scaffolding:** Basic UI screens for customer list and detail views.
+*   **State Management:** `flutter_bloc` for managing the state of the UI.
+*   **Dependency Injection:** `get_it` for decoupling dependencies.
+*   **Firebase Integration:**
+    *   Integrated `cloud_firestore` for data persistence.
+    *   Replaced fake API with `CustomerRepositoryImpl` and `PetRepositoryImpl` using Firestore.
+    *   Configured the Flutter project for Firebase using `flutterfire_cli`.
+*   **Data Serialization:** Implemented `freezed` for robust data serialization and deserialization.
+*   **Theming & UI Polish:**
+    *   Refactored the application's theme to follow Material 3 design principles.
+    *   Added `google_fonts` for custom typography and `provider` for theme state management.
+    *   Implemented a theme-toggling feature (light/dark mode).
+*   **Navigation:**
+    *   Created a custom animated side drawer navigation using `MainLayout`.
+    *   Updated the routing configuration (`app_router.dart`) to use `ShellRoute` with the new `MainLayout`.
+*   **Clinic Section:**
+    *   Created a `clinic_screen.dart` as the main page for the clinic section.
+    *   Created a `medical_examination_screen.dart` to display a list of appointments.
+    *   Defined the `Appointment` entity.
+    *   Added `intl` package for date formatting in the appointment list.
 
-## 3. Thiết kế và Phong cách (Style & Design)
+## Current Plan: Implement CRUD Operations for Customers
 
-### 3.1. Hệ thống Theme
+**Goal:** Build the user interface and logic to allow users to create, update, and delete customer records.
 
-- **Framework**: `flex_color_scheme` được sử dụng để tạo theme một cách nhanh chóng và linh hoạt, dựa trên Material 3.
-- **Màu sắc chủ đạo (Seed Color)**: `Color(0xFF2E7D32)` (xanh lá cây đậm), tạo cảm giác tin cậy, tự nhiên và liên quan đến sức khỏe.
-- **Quản lý trạng thái Theme**: `provider` và `ChangeNotifier` (`ThemeProvider`).
+**Phase 1: Create New Customer**
 
-### 3.2. Typography
-
-- **Font chữ**: `google_fonts` (`Poppins` cho tiêu đề, `Open Sans` cho nội dung).
-
-### 3.3. Component Styling
-
-- **AppBar**: Trong suốt, tích hợp với hiệu ứng 3D Drawer.
-- **Card**: Bo góc tròn (`borderRadius: 16.0`), đổ bóng tinh tế để tạo chiều sâu.
-- **3D Drawer**: Giao diện điều hướng chính với hiệu ứng 3D tùy chỉnh.
-
-## 4. Kiến trúc Thư mục và Định hướng Tính năng
-
-Cấu trúc thư mục của ứng dụng, đặc biệt là trong lớp `presentation`, được tổ chức theo **ngữ cảnh và tính năng** để phản ánh rõ ràng luồng nghiệp vụ và tạo điều kiện cho việc mở rộng trong tương lai.
-
-```
-lib/
-└── presentation/
-    ├── bloc/                 # BLoCs cho các tính năng
-    ├── screens/
-    │   ├── clinic/           # Module chức năng cho "Phòng khám"
-    │   │   ├── clinic_screen.dart
-    │   │   ├── customers/      # Tính năng con: Quản lý Khách hàng
-    │   │   │   ├── customer_detail_screen.dart
-    │   │   │   ├── customer_list_screen.dart
-    │   │   │   └── ...
-    │   │   └── medical_examination/ # Tính năng con: Khám bệnh (dự định)
-    │   │       └── medical_examination_screen.dart
-    │   ├── dashboard_screen.dart # Màn hình tổng quan
-    │   ├── pet/                  # Module chức năng: Quản lý Thú cưng
-    │   │   └── pet_screen.dart
-    │   ├── settings/             # Module chức năng: Cài đặt
-    │   │   └── settings_screen.dart
-    │   └── main_layout.dart      # Layout chính chứa Drawer và body
-    ├── theme/                  # Theme và style
-    └── widgets/                # Các widget tái sử dụng
-```
-
-**Định hướng chính:**
-
--   **Module `clinic`**: Là trung tâm của ứng dụng, nơi nhân viên phòng khám thực hiện các nghiệp vụ chính.
--   **Tính năng lồng nhau**: Các tính năng được tổ chức theo cấu trúc cây (ví dụ: `pet` nằm trong `customer`) để phản ánh mối quan hệ trong thực tế (thú cưng thuộc về một khách hàng).
--   **Khả năng mở rộng**: Dễ dàng thêm các module chức năng mới (ví dụ: `inventory`, `billing`) hoặc các vai trò người dùng mới (ví dụ: `customer_portal`) trong tương lai.
-
-## 5. Lịch sử Tiến hóa Giao diện
-
-1.  **Backdrop Tùy chỉnh**: Bị loại bỏ do vấn đề hiệu năng.
-2.  **`Drawer` Tiêu chuẩn**: Bị loại bỏ do quá đơn điệu.
-3.  **3D Drawer Tùy chỉnh**: Được giữ lại, cân bằng giữa thẩm mỹ và hiệu năng.
-4.  **Dashboard Timeline**: Bị loại bỏ do không đạt yêu cầu thẩm mỹ.
-5.  **Dashboard Grid**: Phiên bản hiện tại, hiện đại và tập trung vào dữ liệu.
+1.  **Update `blueprint.md`**: Document the plan for implementing the "Create Customer" feature.
+2.  **Add Floating Action Button**: Add a `FloatingActionButton` to the `customer_list_screen.dart` to trigger the creation of a new customer.
+3.  **Create `add_edit_customer_screen.dart`**: Build a new screen with a form for entering new customer details (name, phone, email, address).
+4.  **Update Router**: Add a new route in `app_router.dart` to navigate to the `add_edit_customer_screen.dart`.
+5.  **Implement Save Logic**: Connect the form's save button to the `CustomerBloc` to add the new customer to Firestore via the `CustomerRepository`.

@@ -5,18 +5,18 @@ import 'pet_model.dart';
 class CustomerModel {
   final String id;
   final String name;
-  final String phoneNumber; // Giữ nguyên cho API
-  final String email;
-  final String address;
-  final DateTime createdAt; // Giữ nguyên cho API
-  final List<PetModel> pets; // Danh sách PetModel
+  final String? phoneNumber;
+  final String? email;
+  final String? address;
+  final DateTime createdAt;
+  final List<PetModel> pets;
 
   CustomerModel({
     required this.id,
     required this.name,
-    required this.phoneNumber,
-    required this.email,
-    required this.address,
+    this.phoneNumber,
+    this.email,
+    this.address,
     required this.createdAt,
     required this.pets,
   });
@@ -55,10 +55,10 @@ class CustomerModel {
     return Customer(
       id: id,
       name: name,
-      contact: phoneNumber, // Ánh xạ phoneNumber -> contact
+      phoneNumber: phoneNumber,
       email: email,
       address: address,
-      registrationDate: createdAt, // Ánh xạ createdAt -> registrationDate
+      registrationDate: createdAt,
       pets: pets.map((p) => p.toEntity()).toList(),
       petCount: pets.length,
     );
@@ -69,13 +69,31 @@ class CustomerModel {
     return CustomerModel(
       id: entity.id,
       name: entity.name,
-      phoneNumber: entity.contact, // Ánh xạ contact -> phoneNumber
+      phoneNumber: entity.phoneNumber,
       email: entity.email,
       address: entity.address,
-      createdAt: entity.registrationDate, // Ánh xạ registrationDate -> createdAt
-      // Chuyển đổi ngược lại không cần thiết cho PetModel trong ngữ cảnh này
-      // vì chúng ta không tạo PetModel từ Pet entity.
-      pets: [], // Giả định không cần chuyển đổi ngược danh sách thú cưng
+      createdAt: entity.registrationDate,
+      pets: [], 
+    );
+  }
+
+  CustomerModel copyWith({
+    String? id,
+    String? name,
+    String? phoneNumber,
+    String? email,
+    String? address,
+    DateTime? createdAt,
+    List<PetModel>? pets,
+  }) {
+    return CustomerModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      email: email ?? this.email,
+      address: address ?? this.address,
+      createdAt: createdAt ?? this.createdAt,
+      pets: pets ?? this.pets,
     );
   }
 }

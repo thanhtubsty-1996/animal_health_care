@@ -1,55 +1,73 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class ThemeProvider with ChangeNotifier {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  ThemeMode get themeMode => _themeMode;
+
+  void toggleTheme() {
+    _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    notifyListeners();
+  }
+}
 
 class AppTheme {
-  // Theme cho chế độ sáng (Light Mode)
+  static const MaterialColor _primarySeedColor = Colors.deepPurple;
+
+  static final TextTheme _appTextTheme = TextTheme(
+    displayLarge: GoogleFonts.oswald(fontSize: 57, fontWeight: FontWeight.bold),
+    titleLarge: GoogleFonts.roboto(fontSize: 22, fontWeight: FontWeight.w500),
+    bodyMedium: GoogleFonts.openSans(fontSize: 14),
+  );
+
   static ThemeData get lightTheme {
-    return FlexThemeData.light(
-      scheme: FlexScheme.dellGenoa, 
-      surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold, 
-      blendLevel: 7,
-      subThemesData: const FlexSubThemesData(
-        blendOnLevel: 10,
-        blendOnColors: false,
-        useMaterial3Typography: true, 
-        useM2StyleDividerInM3: true,
-        alignedDropdown: true,
-        useInputDecoratorThemeInDialogs: true,
-        cardRadius: 12.0,
-        inputDecoratorRadius: 12.0,
-        elevatedButtonRadius: 12.0, 
-        textButtonRadius: 12.0,
-        outlinedButtonRadius: 12.0,
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: _primarySeedColor,
+        brightness: Brightness.light,
       ),
-      visualDensity: FlexColorScheme.comfortablePlatformDensity,
-      useMaterial3: true, 
-      swapLegacyOnMaterial3: true,
-      // fontFamily: GoogleFonts.openSans().fontFamily, // Vô hiệu hóa
+      textTheme: _appTextTheme,
+      appBarTheme: AppBarTheme(
+        backgroundColor: _primarySeedColor,
+        foregroundColor: Colors.white,
+        titleTextStyle: GoogleFonts.oswald(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: _primarySeedColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          textStyle: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+      ),
     );
   }
 
-  // Theme cho chế độ tối (Dark Mode)
   static ThemeData get darkTheme {
-    return FlexThemeData.dark(
-      scheme: FlexScheme.dellGenoa,
-      surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-      blendLevel: 13,
-      subThemesData: const FlexSubThemesData(
-        blendOnLevel: 20,
-        useMaterial3Typography: true, 
-        useM2StyleDividerInM3: true,
-        alignedDropdown: true,
-        useInputDecoratorThemeInDialogs: true,
-        cardRadius: 12.0,
-        inputDecoratorRadius: 12.0,
-        elevatedButtonRadius: 12.0,
-        textButtonRadius: 12.0,
-        outlinedButtonRadius: 12.0,
-      ),
-      visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    return ThemeData(
       useMaterial3: true,
-      swapLegacyOnMaterial3: true,
-      // fontFamily: GoogleFonts.openSans().fontFamily, // Vô hiệu hóa
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: _primarySeedColor,
+        brightness: Brightness.dark,
+      ),
+      textTheme: _appTextTheme,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.grey[900],
+        foregroundColor: Colors.white,
+        titleTextStyle: GoogleFonts.oswald(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.black,
+          backgroundColor: _primarySeedColor.shade200,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          textStyle: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+      ),
     );
   }
 }

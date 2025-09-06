@@ -1,25 +1,19 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:equatable/equatable.dart';
+part 'pet.freezed.dart';
+part 'pet.g.dart';
 
-class Pet extends Equatable {
-  final String id;
-  final String name;
-  final String species; 
-  final String breed;
-  final int age; 
-  final double weight; 
-  final DateTime birthDate;
+@freezed
+abstract class Pet with _$Pet {
+  const factory Pet({
+    required String id,
+    required String name,
+    required String species,
+    required String breed,
+    required int age,
+    required double weight,
+    required DateTime birthDate,
+  }) = _Pet;
 
-  const Pet({
-    required this.id,
-    required this.name,
-    required this.species,
-    required this.breed,
-    required this.age,
-    required this.weight,
-    required this.birthDate,
-  });
-
-  @override
-  List<Object?> get props => [id, name, species, breed, age, weight, birthDate];
+  factory Pet.fromJson(Map<String, dynamic> json) => _$PetFromJson(json);
 }

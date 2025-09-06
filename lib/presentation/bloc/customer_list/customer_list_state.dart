@@ -1,5 +1,4 @@
-import 'package:animal_health_app/domain/entities/customer.dart';
-import 'package:equatable/equatable.dart';
+part of 'customer_list_bloc.dart';
 
 abstract class CustomerListState extends Equatable {
   const CustomerListState();

@@ -22,12 +22,8 @@ class PetDetailBloc extends Bloc<PetDetailEvent, PetDetailState> {
   ) async {
     emit(PetDetailLoading());
     try {
-      final result = await getPetByIdUseCase(GetPetByIdParams(customerId: event.customerId, petId: event.petId));
-      if (result != null) {
-        emit(PetDetailLoaded(pet: result.pet, owner: result.owner));
-      } else {
-        emit(const PetDetailError('Không tìm thấy thú cưng hoặc chủ sở hữu.'));
-      }
+      final (pet, owner) = await getPetByIdUseCase(event.customerId, event.petId);
+      emit(PetDetailLoaded(pet: pet, owner: owner));
     } catch (e) {
       emit(PetDetailError('Lỗi tải dữ liệu: ${e.toString()}'));
     }

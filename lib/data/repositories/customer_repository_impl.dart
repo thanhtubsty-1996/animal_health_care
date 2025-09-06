@@ -1,30 +1,45 @@
-import 'package:animal_health_app/data/datasources/animal_health_api.dart';
+
 import 'package:animal_health_app/domain/entities/customer.dart';
-import 'package:animal_health_app/domain/entities/pet.dart';
 import 'package:animal_health_app/domain/repositories/customer_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CustomerRepositoryImpl implements CustomerRepository {
-  final AnimalHealthApi api;
+  final FirebaseFirestore _firestore;
 
-  CustomerRepositoryImpl({required this.api});
+  CustomerRepositoryImpl({required FirebaseFirestore firestore}) : _firestore = firestore;
 
   @override
   Future<List<Customer>> getCustomers() async {
-    final customerModels = await api.getAllCustomers();
-    // Chuyển đổi từ Model sang Entity
-    return customerModels.map((model) => model.toEntity()).toList();
+    final snapshot = await _firestore.collection('customers').get();
+    return snapshot.docs
+        .map((doc) => Customer.fromJson(doc.data()))
+        .toList();
   }
 
   @override
   Future<Customer> getCustomerById(String customerId) async {
-    final customerModel = await api.getCustomerById(customerId);
-    return customerModel.toEntity();
+    final doc = await _firestore.collection('customers').doc(customerId).get();
+    return Customer.fromJson(doc.data()!);
   }
 
   @override
-  Future<Pet> getPetById(String customerId, String petId) async {
-    final petModel = await api.getPetById(customerId, petId);
-    return petModel.toEntity();
+  Future<void> addCustomer(Customer customer) {
+    return _firestore
+        .collection('customers')
+        .doc(customer.id)
+        .set(customer.toJson());
   }
 
+  @override
+  Future<void> updateCustomer(Customer customer) {
+    return _firestore
+        .collection('customers')
+        .doc(customer.id)
+        .update(customer.toJson());
+  }
+
+  @override
+  Future<void> deleteCustomer(String id) {
+    return _firestore.collection('customers').doc(id).delete();
+  }
 }

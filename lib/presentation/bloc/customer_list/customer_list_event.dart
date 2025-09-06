@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of 'customer_list_bloc.dart';
 
 abstract class CustomerListEvent extends Equatable {
   const CustomerListEvent();
@@ -7,4 +7,13 @@ abstract class CustomerListEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadCustomers extends CustomerListEvent {}
+class LoadCustomerList extends CustomerListEvent {}
+
+class AddCustomer extends CustomerListEvent {
+  final Customer customer;
+
+  const AddCustomer(this.customer);
+
+  @override
+  List<Object> get props => [customer];
+}

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MainLayout extends StatefulWidget {
-  // Nhận child từ ShellRoute
   final Widget child;
   const MainLayout({super.key, required this.child});
 
@@ -13,41 +12,54 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+    with TickerProviderStateMixin { // Changed to TickerProviderStateMixin
+  late final AnimationController _drawerController;
+  late final AnimationController _hintController;
 
   final double _drawerWidth = 275.0;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _drawerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    _hintController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _drawerController.addListener(() {
+      if (_drawerController.isCompleted || _drawerController.value > 0.1) {
+        _hintController.stop();
+      } else if (_drawerController.isDismissed) {
+        _hintController.repeat(reverse: true);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _drawerController.dispose();
+    _hintController.dispose();
     super.dispose();
   }
 
   void _toggleDrawer() {
-    _controller.isCompleted ? _controller.reverse() : _controller.forward();
+    _drawerController.isCompleted
+        ? _drawerController.reverse()
+        : _drawerController.forward();
   }
 
-  // Lấy index hiện tại dựa trên route
   int _calculateSelectedIndex(BuildContext context) {
-    final GoRouterState route = GoRouterState.of(context);
-    final String location = route.uri.toString();
+    final String location = GoRouterState.of(context).uri.toString();
     if (location == '/') return 0;
-    if (location.startsWith('/clinic')) return 1; 
+    if (location.startsWith('/clinic')) return 1;
     if (location.startsWith('/settings')) return 2;
     return 0;
   }
 
-  // Điều hướng khi item được chọn
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0:
@@ -60,8 +72,7 @@ class _MainLayoutState extends State<MainLayout>
         context.go('/settings');
         break;
     }
-    // Đóng drawer sau khi điều hướng
-    _controller.reverse();
+    _drawerController.reverse();
   }
 
   @override
@@ -93,7 +104,7 @@ class _MainLayoutState extends State<MainLayout>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Padding(
+            Padding(
               padding: const EdgeInsets.only(left: 8.0, bottom: 24.0, top: 16.0),
               child: Text(
                 'Animal Health',
@@ -130,50 +141,92 @@ class _MainLayoutState extends State<MainLayout>
 
   Widget _buildAnimatedMainContent(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
+      animation: _drawerController,
       builder: (context, child) {
-        final slideAmount = _drawerWidth * _controller.value;
-        final scaleAmount = 1 - (_controller.value * 0.25);
-        final angle = _controller.value * -math.pi / 12;
-        final cornerRadius = 32.0 * _controller.value;
+        final slideAmount = _drawerWidth * _drawerController.value;
+        final scaleAmount = 1 - (_drawerController.value * 0.25);
+        final angle = _drawerController.value * -math.pi / 12;
+        final cornerRadius = 32.0 * _drawerController.value;
+
+        final transform = Matrix4.identity()
+          ..setEntry(3, 2, 0.001)
+          ..setEntry(0, 3, slideAmount)
+          ..scale(scaleAmount, scaleAmount)
+          ..rotateY(angle);
 
         return Transform(
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, 0.001)
-            ..translate(slideAmount, 0.0, 0.0)
-            ..scale(scaleAmount, scaleAmount)
-            ..rotateY(angle),
+          transform: transform,
           alignment: Alignment.centerLeft,
           child: Material(
             elevation: 8.0,
             borderRadius: BorderRadius.circular(cornerRadius),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(cornerRadius),
-              child: child, // Hiển thị child từ ShellRoute
+              child: Stack(
+                children: [
+                  child!,
+                  _buildDragHint(),
+                ],
+              ),
             ),
           ),
         );
       },
-      // Bọc child của MainLayout vào đây
       child: GestureDetector(
-         onTap: () {
-          if (_controller.isCompleted) {
+        onTap: () {
+          if (_drawerController.isCompleted) {
             _toggleDrawer();
           }
         },
         onHorizontalDragUpdate: (details) {
-          _controller.value += details.primaryDelta! / _drawerWidth;
+          _drawerController.value += details.primaryDelta! / _drawerWidth;
         },
         onHorizontalDragEnd: (details) {
-          if (_controller.value >= 0.5 || details.primaryVelocity! > 300) {
-            _controller.forward();
+          if (_drawerController.value >= 0.5 || details.primaryVelocity! > 300) {
+            _drawerController.forward();
           } else {
-            _controller.reverse();
+            _drawerController.reverse();
           }
         },
-        // Thay thế Scaffold tĩnh bằng widget.child
         child: widget.child,
       ),
+    );
+  }
+  
+  Widget _buildDragHint() {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_drawerController, _hintController]),
+      builder: (context, child) {
+        // Opacity fades out the hint as the drawer opens.
+        final double hintOpacity = (1.0 - (_drawerController.value * 5.0)).clamp(0.0, 1.0);
+        // The hint animation itself (subtle slide).
+        final double hintPosition = _hintController.value * -8.0;
+
+        if (hintOpacity == 0) return const SizedBox.shrink();
+
+        return Positioned(
+          top: 0,
+          bottom: 0,
+          left: hintPosition + 8,
+          child: Center(
+            child: Opacity(
+              opacity: hintOpacity,
+              child: Container(
+                 decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                  borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                ),
+                width: 20,
+                height: 60,
+                child: Icon(
+                  Icons.chevron_left,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

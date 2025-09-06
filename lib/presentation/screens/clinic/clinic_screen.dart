@@ -25,16 +25,16 @@ class ClinicScreen extends StatelessWidget {
               theme: theme,
               icon: Icons.people_alt_outlined,
               title: 'Khách hàng',
-              subtitle: 'Quản lý hồ sơ & lịch hẹn',
-              onTap: () => context.go('/clinic'), // Sẽ cần cập nhật route này sau
+              subtitle: 'Quản lý hồ sơ & thú cưng',
+              onTap: () => context.go('/clinic/customers'),
             ),
             _buildFeatureCard(
               context: context,
               theme: theme,
-              icon: Icons.pets_outlined,
-              title: 'Danh bạ Thú cưng',
-              subtitle: 'Tìm kiếm & tra cứu hồ sơ',
-              onTap: () => context.go('/clinic/pets'),
+              icon: Icons.medical_services_outlined,
+              title: 'Khám bệnh',
+              subtitle: 'Theo dõi các ca khám bệnh',
+              onTap: () => context.go('/clinic/examination'),
             ),
             _buildFeatureCard(
               context: context,

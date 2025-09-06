@@ -1,12 +1,13 @@
+import 'package:animal_health_app/domain/entities/customer.dart';
 import 'package:animal_health_app/domain/entities/pet.dart';
-import 'package:animal_health_app/domain/repositories/customer_repository.dart';
+import 'package:animal_health_app/domain/repositories/pet_repository.dart';
 
 class GetPetByIdUseCase {
-  final CustomerRepository repository;
+  final PetRepository repository;
 
-  GetPetByIdUseCase(this.repository);
+  GetPetByIdUseCase({required this.repository});
 
-  Future<Pet> call(String customerId, String petId) {
+  Future<(Pet, Customer)> call(String customerId, String petId) {
     return repository.getPetById(customerId, petId);
   }
 }

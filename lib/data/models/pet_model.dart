@@ -8,6 +8,7 @@ class PetModel {
   final String breed;
   final DateTime birthDate;
   final double weight;
+  final String ownerId; // Add ownerId
 
   PetModel({
     required this.id,
@@ -16,6 +17,7 @@ class PetModel {
     required this.breed,
     required this.birthDate,
     required this.weight,
+    required this.ownerId,
   });
 
   factory PetModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class PetModel {
       breed: json['breed'],
       birthDate: DateTime.parse(json['birthDate']),
       weight: (json['weight'] as num).toDouble(),
+      ownerId: json['ownerId'],
     );
   }
 
@@ -37,6 +40,7 @@ class PetModel {
       'breed': breed,
       'birthDate': birthDate.toIso8601String(),
       'weight': weight,
+      'ownerId': ownerId,
     };
   }
 
@@ -49,8 +53,27 @@ class PetModel {
       breed: breed,
       birthDate: birthDate,
       weight: weight,
-      // Tính toán tuổi từ ngày sinh
       age: DateTime.now().difference(birthDate).inDays ~/ 365,
+    );
+  }
+
+  PetModel copyWith({
+    String? id,
+    String? name,
+    String? species,
+    String? breed,
+    DateTime? birthDate,
+    double? weight,
+    String? ownerId,
+  }) {
+    return PetModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      species: species ?? this.species,
+      breed: breed ?? this.breed,
+      birthDate: birthDate ?? this.birthDate,
+      weight: weight ?? this.weight,
+      ownerId: ownerId ?? this.ownerId,
     );
   }
 }
